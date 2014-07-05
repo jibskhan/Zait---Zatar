@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<section>
+			<div class="form">
+				<img src="img/logo-home.png" />
+				<div class="list">
+					الرجاء التأكد من الإتصال بالإنترنت!
+				</div>
+			</div>
+		</section>
+		<footer class="connection">
+			<a onclick="goBack()" class="button-green"><strong>إعادة الإتصال</strong></a>
+			<a onclick="navigator.app.exitApp()" class="button-block">خروج</a>
+		</footer>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+
+			function onDeviceReady()
+			{				
+				document.addEventListener("backbutton", goBack, false);
+			}
+		</script>
+    </body>
+</html>

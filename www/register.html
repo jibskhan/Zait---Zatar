@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<section id="sec" class="lists">
+				<div class="form">
+					<img src="img/logo-home.png" />
+					<div class="list">
+						<form name="regform" onsubmit="return register();">
+							<div class="placeholder">الإسم الأول</div>
+							<input autocomplete="off" type="text" name="firstname" required>
+							<div class="placeholder">الإسم الأخير</div>
+							<input autocomplete="off" type="text" name="lastname" required>
+							<div class="placeholder">تاريخ الميلاد</div>
+							<input autocomplete="off" type="date" name="birthday" required>
+							<div class="placeholder">البريد الإلكتروني</div>
+							<input autocomplete="off" autocorrect="off" autocapitalize="off" type="email" name="email" required>
+							<div class="placeholder">يرجى اختيار كلمة سر جديدة</div>
+							<input autocomplete="off" autocorrect="off" autocapitalize="off" type="password" name="password" required>
+							<div class="placeholder">الهاتف</div>
+							<input autocomplete="off" type="tel" name="telephone" required>
+							<div class="placeholder">العنوان</div>
+							<input autocomplete="off" type="text" name="address_1" required>
+							<div class="placeholder">المدينة</div>
+							<select name="sel_city" onchange="showfield(this.options[this.selectedIndex].value)">
+								<option value="Sweifieh" selected="selected">الصويفية</option>
+								<option value="Dair Ghbar">دير غبار‎‎</option>
+								<option value="Abdoun">عبدون</option>
+								<option value="Um Uthaynah">أم أذينة</option>
+								<option value="Al Rabaheya">الرابية</option>
+								<option value="Um Al Summaq">أم السماق</option>
+								<option value="Khalda">خلدا</option>
+								<option value="Dabouq">دابوق</option>
+								<option value="">أخرى</option>
+							</select>
+							<input autocomplete="off" type="text" name="city" placeholder="أدخل هنا" id="city" value="الصويفية" style="display: none;" required>
+
+							<input class="button-signup" type="submit" value="تحديث" onclick="">
+							<a href="login.html">عودة لتسجيل الدخول</a>
+
+						</form>
+					</div>
+				</div>
+			</section>
+
+		</article>
+
+        <script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+			var regform = doc.forms["regform"];
+
+			function showfield(name)
+			{
+				var city = byId('city');
+
+				city.value = name;
+				city.style.display = (name == '') ? '' : 'none';
+			}
+			function register()
+			{
+				section.addClass(loadClass);
+
+				if (checkConnection(false))
+				{
+					var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=register&firstname=' + escape(regform['firstname'].value) + '&lastname=' + escape(regform['lastname'].value) + '&birthday=' + escape(regform['birthday'].value) + '&email=' + escape(regform['email'].value) + '&password=' + escape(regform['password'].value) + '&telephone=' + escape(regform['telephone'].value) + '&address_1=' + escape(regform['address_1'].value) + '&city=' + escape(regform['city'].value);
+
+					if (queue.in_array(url) != false)
+					{
+						return;
+					}
+					var cur = length++;
+					queue[cur] = url;
+
+					var xhr = new XMLHttpRequest();
+					xhr.open('GET', url);
+					xhr.timeout = 4000;
+					xhr.ontimeout = function ()
+					{
+						section.removeClass(loadClass);
+						toastMsg('عذراً, لا يمكن اتمام عملية تسجيل حسابك');
+					}
+					xhr.onload = function(e)
+					{
+						queue.splice(cur);
+						var data = JSON.parse(this.responseText);
+						if (data['accountid'])
+						{
+							db.transaction(function(tx) {
+								tx.executeSql('REPLACE INTO ACCOUNT (provider, accountid, userid, name, email, accesstoken, accesstokensecret, dateline) VALUES (?,?,?,?,?,?,?,?)', ['joomla',data['accountid'],0,data['name'],data['email'],data['accesstoken'],'',0]);
+							}, errorCB);
+
+							toastMsg('أهلا بك الى أسواق زيت وزعتر, ' + data['name']);
+							navigator.notification.vibrate(500);
+
+							window.location.href = _GET['back'] === undefined ? 'main.html' : _GET['back'];
+						}
+						else
+						{
+							section.removeClass(loadClass);
+							if (data['msg'])
+							{
+								toastMsg(data['msg']);
+							}
+							else
+							{
+								toastMsg('عذراً, لا يمكن اتمام عملية تسجيل حسابك');
+							}
+						}
+					}
+					xhr.send();
+				}
+				else
+				{
+					section.removeClass(loadClass);
+				}
+
+				return false;
+			}
+
+			function onDeviceReady()
+			{
+				initialize();
+				
+				document.addEventListener("backbutton", goBack, false);
+
+				ScrollSimple();
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

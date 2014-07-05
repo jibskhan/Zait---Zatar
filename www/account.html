@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<header>
+				<ul>
+					<li class="back"><a href="javascript:goBack();"><span>رجوع</span></a></li><li class="menu"><a href="main.html"><span>القائمة</span></a></li><li class="cart"><a href="cart.html"><span id="cart-total">0 منتجات - 0.00 JD</span></a></li><li class="account"><a href="account.html"><span>حسابي</span></a></li><li class="contact"><a href="contact.html"><span>اتصل بنا</span></a></li>
+				</ul>
+			</header>
+
+			<section id="sec" class="lists filter">
+				<div class="form">
+					<div class="list">
+						<span id="account"></span>
+						<a href="edit.html" class="button-gray">تعديل معلومات حسابك</a>
+						<a href="password.html" class="button-gray">تعديل كلمة المرور</a>
+						<a href="order.html" class="button-gray">استعراض الطلبات السابقة</a>
+						<a href="index.html?e=1&do=logout" class="button-gray">تسجيل الخروج</a>
+					</div>
+				</div>
+			</section>
+
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+
+
+			function onDeviceReady()
+			{
+				if (ACCOUNT.accountid == 0)
+				{
+					toastMsg("الرجاء تسجيل الدخول");
+					window.location.href = 'login.html?back=account.html';
+					return;
+				}
+
+				initialize();
+				
+				document.addEventListener("backbutton", goBack, false);
+
+				byId('account').innerHTML = 'أهلاً, ' + ACCOUNT.name;
+				ScrollSimple();
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

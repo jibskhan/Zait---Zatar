@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<section id="sec" class="lists">
+				<div class="form">
+					<img src="img/logo-home.png" />
+					<div class="list">
+						<form name="forgetform" onsubmit="return forget();">
+							لتغيير كلمة المرور، أدخل البريد الالكتروني الخاص بحسابك لدى زيت وزعتر:
+							<input autocomplete="off" autocorrect="off" autocapitalize="off" type="email" name="email" id="input-name" placeholder="البريد الالكتروني" required />
+							<input class="button-gray" type="submit" value="تغيير كملة المرور" onclick="">
+							<a href="login.html">عودة لتسجيل الدخول</a>
+						</form>
+					</div>
+				</div>
+			</section>
+
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+			var forgetform = doc.forms["forgetform"];
+
+			function forget()
+			{
+				section.addClass(loadClass);
+
+				checkConnection(true);
+
+				var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=forget&email=' + escape(forgetform['email'].value);
+
+				if (queue.in_array(url) != false)
+				{
+					return;
+				}
+				var cur = length++;
+				queue[cur] = url;
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', url);
+				xhr.timeout = 4000;
+				xhr.ontimeout = function ()
+				{
+					section.removeClass(loadClass);
+					toastMsg('Unable to reset the password');
+				}
+				xhr.onload = function(e)
+				{
+					queue.splice(cur);
+					var data = JSON.parse(this.responseText);
+					if (data['accountid'])
+					{
+						toastMsg('Please check the message sent to your email to reset your password');
+
+						window.location.href = _GET['back'] === undefined ? 'login.html' : _GET['back'];
+					}
+					else
+					{
+						section.removeClass(loadClass);
+						if (data['msg'])
+						{
+							toastMsg(data['msg']);
+						}
+						else
+						{
+							toastMsg('Unable to reset the password');
+						}
+					}
+				}
+				xhr.send();
+
+				return false;
+			}
+
+			function onDeviceReady()
+			{
+				initialize();
+
+				document.addEventListener("backbutton", goBack, false);
+
+				ScrollSimple();
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

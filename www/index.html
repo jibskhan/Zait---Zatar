@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<section id="sec"></section>
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+		<script type="text/javascript">
+			section.addClass(loadClass);
+
+			function login(provider, userid, name, email, accesstoken, accesstokensecret, dateline)
+			{
+				checkConnection(true);
+
+				var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=login&provider=' + provider + '&userid=' + userid + '&name=' + name + '&email=' + email + '&accesstoken=' + accesstoken + '&accesstokensecret=' + accesstokensecret + '&dateline=' + dateline;
+
+				if (queue.in_array(url) != false)
+				{
+					return;
+				}
+				var cur = length++;
+				queue[cur] = url;
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', url);
+				xhr.timeout = 4000;
+				xhr.ontimeout = function ()
+				{
+					queue.splice(cur);
+					window.location.href = 'login.html';
+				}
+				xhr.onload = function(e)
+				{
+					queue.splice(cur);
+					var data = JSON.parse(this.responseText);
+					if (data['accountid'])
+					{
+						db.transaction(function(tx) {
+							tx.executeSql('REPLACE INTO ACCOUNT (provider, accountid, userid, name, email, accesstoken, accesstokensecret, dateline) VALUES (?,?,?,?,?,?,?,?)', [provider,data['accountid'],userid,name,email,accesstoken,accesstokensecret,dateline], function(tx, res) {
+								//toastMsg('Welcome to Zait & Zatar, ' + name);
+								//navigator.notification.vibrate(500);
+
+								//window.location.href = _GET['back'] === undefined ? 'main.html' : _GET['back'];
+								window.location.href = 'main.html?do=updatelogin&p=' +  escape(provider) + '&a=' + escape(data['accountid']) + '&u=' + escape(userid) + '&n=' + escape(name) + '&e=' + escape(email) + '&at=' + escape(accesstoken) + '&as=' + escape(accesstokensecret) + '&d=' + escape(dateline);
+							});
+						}, errorCB);
+
+					}
+					else
+					{
+						toastMsg('Login failed');
+						window.location.href = 'login.html';
+					}
+				}
+				xhr.send();
+			}
+
+			function onDeviceReady()
+			{
+				document.addEventListener("backbutton", goBack, false);
+				document.addEventListener("searchbutton", onSearchKeyDown, false);
+
+				var redirect = '';
+				if (_GET['e'] != 1)
+				{
+					navigator.splashscreen.hide();
+
+					window.plugins.webintent.getUri(function(url) {
+						if(url !== "") {
+							// url is the url the intent was launched with
+							var _POST = getUrlVars(url);
+
+							// http://zait-zatar.com/mobile-ar/index.php?do=recover&id=174&p=4abc7280224d22cfd547dced69469f08&t=1367838861
+							if (_POST['do'] == 'recover')
+							{
+								redirect = 'recover.html?id=' + _POST['id'] + '&p=' + _POST['p'] + '&t=' + _POST['t'];
+							}
+						}
+					});
+				}
+
+				if (redirect)
+				{
+					window.location.href = redirect;
+				}
+				else if (_GET['do'] == 'login')
+				{
+					if (_GET['provider'] == 'joomla')
+					{
+						login('joomla', 0, '', _GET['username'], _GET['password'], '', 0);
+					}
+				}
+				else if (_GET['do'] == 'logout')
+				{
+					db.transaction(function(tx) {
+						tx.executeSql('DROP TABLE IF EXISTS ACCOUNT', [], function(tx, res) {
+							toastMsg('تم تحويلك لصفحة تسجيل الدخول');
+							//navigator.notification.vibrate(500);
+
+							window.location.href = 'login.html' + (_GET['back'] === undefined ? '' : '?back=' + _GET['back']);
+						});
+					}, errorCB);
+					
+					return;
+				}
+				else if (ACCOUNT.accountid)
+				{
+					window.location.href = 'main.html';
+					return;
+				}
+				else
+				{
+					window.location.href = 'login.html';
+					return;
+				}
+			}
+
+		</script>
+    </body>
+</html>

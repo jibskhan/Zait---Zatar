@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<header>
+				<ul>
+					<li class="back"><a href="javascript:goBack();"><span>رجوع</span></a></li><li class="menu"><a href="main.html"><span>القائمة</span></a></li><li class="cart"><a href="cart.html"><span id="cart-total"></span></a></li><li class="account"><a href="account.html"><span>حسابي</span></a></li><li class="contact"><a href="contact.html"><span>اتصل بنا</span></a></li>
+				</ul>
+			</header>
+			<div id="filter">
+				<span id="title">سلة الشراء</span>
+			</div>
+
+			<section id="sec" class="lists filter hasfooter">
+				<div>
+					<div class="list"></div>
+				</div>
+			</section>
+			<footer>
+				<a href="checkout.html" class="button-yellow" id="checkout" style="display:none;"><strong>إتمام الشراء</strong></a>
+				<div>المجموع الفرعي :<span id="subtotal"></span></div>
+			</footer>
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+			ScrollSimple();
+ 			section.addClass(loadClass);
+
+			function insertElement(product_id, name, image, price, quantity)
+			{
+				id = parseInt(product_id);
+				price = parseFloat(price);
+
+				_PRODUCT[id] = [name, image, price];
+
+				var newdiv = document.createElement('div');
+				newdiv.id = 'product_' + id;
+				newdiv.innerHTML = '<div class="cartform"><input id="textcart_' + id + '" type="submit" onclick="updateProduct(' + id + ')" value="تحديث">' +
+					'<input type="button" onclick="changeQuantity(' + id + ', -1);" value="-"><input type="text" name="quantity" id="quantity_' + id + '" value="' + quantity + '" readonly><input type="button" onclick="changeQuantity(' + id + ', 1);" value="+"></div>' +
+					'<img class="cover_p" src="' + image + '" />' +
+					'<div>' + name + '</div>' +
+					'<div>' + price + ' JD</div>';
+
+				list.appendChild(newdiv, list.firstChild);
+
+			}
+
+			function onDeviceReady()
+			{
+				initialize();
+
+				document.addEventListener("backbutton", goBack, false);
+				
+				for(var varname in _CART)
+				{
+					insertElement(varname, _CART[varname][1], _CART[varname][2], _CART[varname][3], _CART[varname][4]);
+				}
+				
+				myScroll.refresh();
+				section.removeClass(loadClass);
+				
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

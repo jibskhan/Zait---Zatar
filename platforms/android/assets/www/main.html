@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<header>
+				<ul>
+					<li class="back"><a href="javascript:goBack();"><span>رجوع</span></a></li><li class="menu"><a href="main.html"><span>القائمة</span></a></li><li class="cart"><a href="cart.html"><span id="cart-total"></span></a></li><li class="account"><a href="account.html"><span>حسابي</span></a></li><li class="contact"><a href="contact.html"><span>اتصل بنا</span></a></li>
+				</ul>
+			</header>
+			
+			<div id="filter">
+				<form name="searchform" action="section.html" method="get">
+					<input type="hidden" name="section" value="">
+					<input type="hidden" name="category" value="">
+
+					<input type="search" name="search" value="" onchange='this.form.submit()'>
+				</form>
+				<span id="title"></span>
+			</div>
+
+			<section id="sec" class="lists filter">
+				<div>
+					<div class="list maincats"></div>
+				</div>
+			</section>
+
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+
+			listhtml = '';
+			if (_GET['section'])
+			{
+				var len = Object.keys(_SECTION[_GET['section']]['category']).length;
+				if (len < 2)
+				{
+					window.location.href = 'main.html';
+				}
+
+				byId('title').innerHTML = _SECTION[_GET['section']]['title'];
+				for(var varname in _SECTION[_GET['section']]['category'])
+				{
+					var title = _SECTION[_GET['section']]['category'][varname];
+					listhtml += '<div><a href="section.html?section=' + _GET['section'] + '&category=' + varname + '">' +
+					'<img class="cover" src="./img/categories/' + _GET['section'] + '/' + varname + '.png" />' +
+					title + '</a></div>';
+				}
+			}
+			else
+			{
+				byId('title').innerHTML = 'الرئيسية';
+				for(var varname in _SECTION)
+				{
+					var len = Object.keys(_SECTION[varname]['category']).length;
+					if (len < 1)
+					{
+						continue;
+					}
+					else if (len == 1)
+					{
+						for(var _varname in _SECTION[varname]['category'])
+						{
+							var title = _SECTION[varname]['category'][_varname];
+							listhtml += '<div><a href="section.html?section=' + varname + '&category=' + _varname + '">' +
+							'<img class="cover" src="./img/categories/' + varname + '/' + _varname + '.png" />' +
+							title + '</a></div>';
+						}
+
+						continue;
+					}
+
+					var title = _SECTION[varname]['title'];
+					listhtml += '<div><a href="main.html?section=' + varname + '">' +
+					'<img class="cover" src="./img/categories/' + varname + '/' + varname + '.png" />' +
+					title + '</a></div>';
+				}
+			}
+			list.innerHTML = listhtml;
+
+			function onDeviceReady()
+			{
+				initialize();
+
+				document.addEventListener("backbutton", goBack, false);
+				document.addEventListener("searchbutton", onSearchKeyDown, false);
+
+				ScrollSimple();
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

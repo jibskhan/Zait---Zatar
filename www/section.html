@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<header>
+				<ul>
+					<li class="back"><a href="javascript:goBack();"><span>رجوع</span></a></li><li class="menu"><a href="main.html"><span>القائمة</span></a></li><li class="cart"><a href="cart.html"><span id="cart-total"></span></a></li><li class="account"><a href="account.html"><span>حسابي</span></a></li><li class="contact"><a href="contact.html"><span>اتصل بنا</span></a></li>
+				</ul>
+			</header>
+			<div id="filter">
+				<form name="searchform" action="section.html" method="get">
+					<input type="hidden" name="section" value="">
+					<input type="hidden" name="category" value="">
+
+					<input type="search" name="search" value="" onchange='this.form.submit()'>
+				</form>
+				<span id="title"></span>
+			</div>
+
+			<section id="sec" class="lists filter">
+				<div>
+					<ul class="list">
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+						<li class="row"></li>
+					</ul>
+				</div>
+			</section>
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+ 			section.addClass(loadClass);
+
+			function onDeviceReady()
+			{
+				checkConnection(true);
+
+				var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=count' + SCRIPTQUERY;
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', url);
+				xhr.timeout = 14000;
+				xhr.ontimeout = function ()
+				{
+					toastMsg('عذراً,لا يمكن تنفيذ طلبك');
+				}
+				xhr.onload = function(e)
+				{
+					section.removeClass(loadClass);
+					ScrollInfinite(this.responseText);
+				}
+				xhr.send();
+
+				initialize();
+				
+				document.addEventListener("backbutton", goBack, false);
+				document.addEventListener("searchbutton", onSearchKeyDown, false);
+
+				if (_GET['section'] && _GET['category'])
+				{
+					byId('title').innerHTML = _SECTION[_GET['section']]['category'][_GET['category']];
+				}
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

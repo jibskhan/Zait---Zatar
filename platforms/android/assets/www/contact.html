@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<header>
+				<ul>
+					<li class="back"><a href="javascript:goBack();"><span>رجوع</span></a></li><li class="menu"><a href="main.html"><span>القائمة</span></a></li><li class="cart"><a href="cart.html"><span id="cart-total">0 منتجات - 0.00 JD</span></a></li><li class="account"><a href="account.html"><span>حسابي</span></a></li><li class="contact"><a href="contact.html"><span>اتصل بنا</span></a></li>
+				</ul>
+			</header>
+			
+			<section id="sec" class="lists filter">
+				<div class="form">
+					<img src="img/logo-home.png" />
+					<div class="list">
+						<a href="mailto:webmaster@zait-zatar.com" class="button-gray">أرسل ايميل</a>
+						<a href="sms:00962789444333" class="button-gray">أرسل رسالة نصية</a>
+						<a href="tel:00962789444333" class="button-gray">إتصل هاتفياً</a>
+					</div>
+				</div>
+			</section>
+
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+
+
+			function onDeviceReady()
+			{
+				initialize();
+				
+				document.addEventListener("backbutton", goBack, false);
+
+				ScrollSimple();
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

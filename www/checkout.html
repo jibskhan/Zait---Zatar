@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<header>
+				<ul>
+					<li class="back"><a href="javascript:goBack();"><span>رجوع</span></a></li><li class="menu"><a href="main.html"><span>القائمة</span></a></li><li class="cart"><a href="cart.html"><span id="cart-total"></span></a></li><li class="account"><a href="account.html"><span>حسابي</span></a></li><li class="contact"><a href="contact.html"><span>اتصل بنا</span></a></li>
+				</ul>
+			</header>
+			<section id="sec" class="lists filter">
+				<div class="form">
+					<div class="list">
+						<form name="checkoutform" onsubmit="return checkout();">
+							<span id="account"></span>
+							<div>المجموع الفرعي :<span id="subtotal"></span></div>
+							<div>تكاليف التوصيل :1,500 JD</div>
+							<div>المجموع النهائي:<span id="total"></span></div>
+
+							<div class="placeholder">ملاحظات إضافية</div>
+							<textarea name="comment" id="comment"></textarea>
+							<div class="placeholder">وقت التوصيل</div>
+							<select name="deleviry_time" id="deleviry_time" dir="rtl">
+							</select>
+
+							<input class="button-yellow" type="submit" value="إتمام الشراء" onclick="">
+						</form>
+
+					</div>
+				</div>
+			</section>
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+			ScrollSimple();
+ 			section.addClass(loadClass);
+			var checkoutform = doc.forms["checkoutform"];
+
+			function checkout()
+			{
+				section.addClass(loadClass);
+
+				if (checkConnection(false))
+				{
+					var _query = '';
+					for(var varname in _CART)
+					{
+						_query += '&cart[' + varname + ']=' + _CART[varname][4];
+					}
+					var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=checkout&accountid=' + ACCOUNT.accountid + '&provider=' + ACCOUNT.provider + '&userid=' + ACCOUNT.userid + '&name=' + ACCOUNT.name + '&email=' + ACCOUNT.email + '&accesstoken=' + ACCOUNT.accesstoken + '&accesstokensecret=' + ACCOUNT.accesstokensecret + '&deleviry_time=' + escape(checkoutform['deleviry_time'].value) + '&comment=' + escape(checkoutform['comment'].value) + _query;
+
+					if (queue.in_array(url) != false)
+					{
+						return;
+					}
+					var cur = length++;
+					queue[cur] = url;
+
+					var xhr = new XMLHttpRequest();
+					xhr.open('GET', url);
+					xhr.timeout = 4000;
+					xhr.ontimeout = function ()
+					{
+						section.removeClass(loadClass);
+						toastMsg('عذرا,لا يمكن إتمام طلبك');
+					}
+					xhr.onload = function(e)
+					{
+						queue.splice(cur);
+						var data = JSON.parse(this.responseText);
+						if (data['accountid'])
+						{
+							db.transaction(function(tx) {
+								tx.executeSql('REPLACE INTO ACCOUNT (provider, accountid, userid, name, email, accesstoken, accesstokensecret, dateline) VALUES (?,?,?,?,?,?,?,?)', ['joomla',data['accountid'],0,data['name'],data['email'],data['accesstoken'],'',0]);
+								tx.executeSql('DROP TABLE IF EXISTS CART');
+							}, errorCB);
+
+							toastMsg('تم إتمام طلب الشراء, نشكركم للتسوق لدى اسواق زيت وزعتر');
+							navigator.notification.vibrate(500);
+
+							window.location.href = 'main.html';
+						}
+						else
+						{
+							section.removeClass(loadClass);
+							if (data['msg'])
+							{
+								toastMsg(data['msg']);
+							}
+							else
+							{
+								toastMsg('إانتهت المدة المسموح بها,أعد تسجيل دخولك رجاءاً');
+								window.location.href = 'index.html?e=1&do=logout&back=checkout.html';
+							}
+						}
+					}
+					xhr.send();
+				}
+				else
+				{
+					section.removeClass(loadClass);
+				}
+
+				return false;
+			}
+
+			function onDeviceReady()
+			{
+				initialize();
+
+				document.addEventListener("backbutton", goBack, false);
+
+				myScroll.refresh();
+				
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+
+				var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=profile&view=deleviry_time&accountid=' + ACCOUNT.accountid + '&provider=' + ACCOUNT.provider + '&userid=' + ACCOUNT.userid + '&name=' + ACCOUNT.name + '&email=' + ACCOUNT.email + '&accesstoken=' + ACCOUNT.accesstoken + '&accesstokensecret=' + ACCOUNT.accesstokensecret;
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', url);
+				xhr.timeout = 14000;
+				xhr.ontimeout = function ()
+				{
+					toastMsg('عذرا,لا يمكن اتمام طلبك');
+					window.location.href = 'account.html';
+				}
+				xhr.onload = function(e)
+				{
+					var data = JSON.parse(this.responseText);
+					if (data['accountid'])
+					{
+						db.transaction(function(tx) {
+							tx.executeSql('REPLACE INTO ACCOUNT (provider, accountid, userid, name, email, accesstoken, accesstokensecret, dateline) VALUES (?,?,?,?,?,?,?,?)', ['joomla',data['accountid'],0,data['name'],data['email'],data['accesstoken'],'',0]);
+						}, errorCB);
+
+						byId('deleviry_time').innerHTML = data['deleviry_time'];
+						byId('account').innerHTML = '<strong>عنوان التوصيل</strong><br />' +
+						data['name'] + '<br />' + 
+						data['address_1'] + '<br />' + 
+						(data['address_2'] ? data['address_2'] + '<br />' : '') + 
+						data['city'] + '<br />' + 
+						'عمان, الأردن' + 
+						'<br /><br />';
+
+						section.removeClass(loadClass);
+					}
+					else
+					{
+						toastMsg('يرجى إعادة تسجيل الدخول');
+						window.location.href = 'index.html?e=1&do=logout&back=checkout.html';
+					}
+				}
+				xhr.send();
+			}
+		</script>
+    </body>
+</html>

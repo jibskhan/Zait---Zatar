@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<section id="sec" class="lists noheader">
+				<div class="form">
+					<img src="img/logo-home.png" />
+					<div class="list">
+						<form name="loginform" onsubmit="return login();">
+							يرجى إدخال البريد الإلكتروني وكلمة المرور:
+							<input autocomplete="off" autocorrect="off" autocapitalize="off" type="email" name="email" id="input-name" placeholder="البريد الالكتروني" required />
+							<input autocomplete="off" autocorrect="off" autocapitalize="off" type="password" name="password" placeholder="كلمة المرور" required />
+							<input class="button-login" type="submit" value="تسجيل الدخول">
+							<a  class="test" href="forget.html"> نسيت كلمة المرور؟</a><a  class="test" href="main.html"> تجاوز التسجيل >> </a>
+							<a href="register.html" class="button-signup"><strong>تسجيل حساب</strong></a>
+						</form>
+					</div>
+				</div>
+			</section>
+
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+			var loginform = doc.forms["loginform"];
+
+			function login()
+			{
+				section.addClass(loadClass);
+
+				if (checkConnection(false))
+				{
+					var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=login&provider=joomla&email=' + escape(loginform['email'].value) + '&password=' + escape(loginform['password'].value);
+
+					if (queue.in_array(url) != false)
+					{
+						return;
+					}
+					var cur = length++;
+					queue[cur] = url;
+
+					var xhr = new XMLHttpRequest();
+					xhr.open('GET', url);
+					xhr.timeout = 4000;
+					xhr.ontimeout = function ()
+					{
+						section.removeClass(loadClass);
+						toastMsg('فشل تسجيل الدخول');
+					}
+					xhr.onload = function(e)
+					{
+						queue.splice(cur);
+						var data = JSON.parse(this.responseText);
+						if (data['accountid'])
+						{
+							db.transaction(function(tx) {
+								tx.executeSql('REPLACE INTO ACCOUNT (provider, accountid, userid, name, email, accesstoken, accesstokensecret, dateline) VALUES (?,?,?,?,?,?,?,?)', ['joomla',data['accountid'],0,data['name'],data['email'],data['accesstoken'],'',0]);
+							}, errorCB);
+
+							toastMsg('أهلاً بك الى اسواق زيت وزعتر, ' + data['name']);
+							navigator.notification.vibrate(500);
+
+							window.location.href = _GET['back'] === undefined ? 'main.html' : _GET['back'];
+						}
+						else
+						{
+							section.removeClass(loadClass);
+							if (data['msg'])
+							{
+								toastMsg(data['msg']);
+							}
+							else
+							{
+								toastMsg('فشل تسجيل الدخول');
+							}
+						}
+					}
+					xhr.send();
+				}
+				else
+				{
+					section.removeClass(loadClass);
+				}
+
+				return false;
+			}
+
+			function onDeviceReady()
+			{
+				initialize();
+
+				document.addEventListener("backbutton", goBack, false);
+
+				ScrollSimple();
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

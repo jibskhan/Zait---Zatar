@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<header>
+				<ul>
+					<li class="back"><a href="javascript:goBack();"><span>رجوع</span></a></li><li class="menu"><a href="main.html"><span>القائمة</span></a></li><li class="cart"><a href="cart.html"><span id="cart-total"></span></a></li><li class="account"><a href="account.html"><span>حسابي</span></a></li><li class="contact"><a href="contact.html"><span>اتصل بنا</span></a></li>
+				</ul>
+			</header>
+
+			<section id="sec" class="lists">
+				<div>
+					<div class="list"></div>
+				</div>
+			</section>
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+			ScrollPullRefresh();
+ 			section.addClass(loadClass);
+
+			function insertElement(order_id, total, date_added, view)
+			{
+				id = parseInt(order_id);
+				price = parseFloat(total);
+
+				var newdiv = document.createElement('div');
+				newdiv.innerHTML = '<a href="history.html?id=' + id + '"><img class="cover_p" src="img/thumb.jpg" />' +
+					'ID: ' + order_id +
+					', ' + price + ' JD</a>';
+
+				if (view == 'older')
+				{
+					lastid = id;
+					list.appendChild(newdiv, list.firstChild);
+				}
+				else
+				{
+					firstid = id;
+					if (lastid == 0)
+					{
+						lastid = id;
+					}
+					list.insertBefore(newdiv, list.firstChild);
+				}
+
+				if (_GET['id'] == id)
+				{
+					current = newdiv;
+				}
+			}
+
+			function fetch_data(view)
+			{
+				if (view == 'older')
+				{
+					var update = lastid;
+					if (lastid == 0) return;
+				}
+				else
+				{
+					var update = firstid;
+				}
+
+				if (checkConnection(!update) === false)
+				{
+					myScroll.refresh();
+					return;
+				}
+
+				var order = '&ido=' + (view == 'older' ? lastorder : firstorder);
+
+				var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=order&view=' + view + '&id=' + update + order + '&accountid=' + ACCOUNT.accountid + '&provider=' + ACCOUNT.provider + '&userid=' + ACCOUNT.userid + '&name=' + ACCOUNT.name + '&email=' + ACCOUNT.email + '&accesstoken=' + ACCOUNT.accesstoken + '&accesstokensecret=' + ACCOUNT.accesstokensecret;
+				if (queue.in_array(url) != false)
+				{
+					return;
+				}
+				var cur = length++;
+				queue[cur] = url;
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', url);
+				xhr.timeout = 14000;
+				xhr.ontimeout = function ()
+				{
+					queue.splice(cur);
+					myScroll.refresh();
+					section.removeClass(loadClass);
+				}
+				xhr.onload = function(e)
+				{
+					var data = JSON.parse(this.responseText);
+
+					if (data.length)
+					{
+						if (update && view != 'older')
+						{
+							navigator.notification.beep(1);
+						}
+						data.forEach(function(value) {
+							insertElement(value['order_id'], value['total'], value['date_added'], view);
+						})
+					}
+					else if (!update)
+					{
+						sec.innerHTML = '<div class="notification">ليس لديك أي طلبات سابقة</div>';
+					}
+
+					queue.splice(cur);
+					myScroll.refresh();
+					section.removeClass(loadClass);
+				}
+				xhr.send();
+			}
+
+			function onDeviceReady()
+			{
+				if (ACCOUNT.accountid == 0)
+				{
+					toastMsg("سجل دخولك أولاً");
+					window.location.href = 'login.html?back=password.html';
+					return;
+				}
+
+				initialize();
+				
+				document.addEventListener("backbutton", goBack, false);
+
+				fetch_data();
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>

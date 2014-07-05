@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html dir="rtl">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <title>Zait-Zatar.com</title>
+    </head>
+    <body>
+		<article id="article">
+			<header>
+				<ul>
+					<li class="back"><a href="javascript:goBack();"><span>رجوع</span></a></li><li class="menu"><a href="main.html"><span>القائمة</span></a></li><li class="cart"><a href="cart.html"><span id="cart-total"></span></a></li><li class="account"><a href="account.html"><span>حسابي</span></a></li><li class="contact"><a href="contact.html"><span>اتصل بنا</span></a></li>
+				</ul>
+			</header>
+
+			<section id="sec" class="lists hasfooter">
+				<div>
+					<div class="list"></div>
+				</div>
+			</section>
+
+			<footer>
+				<a href="javascript:reOrder();" class="button-yellow" id="checkout" style="display:none;"><strong>أضف الى السلة</strong></a>
+				<div>المجموع الفرعي :<span id="subtotal"></span></div>
+			</footer>
+		</article>
+
+		<script type="text/javascript" src="phonegap.js"></script>
+		<script type="text/javascript" src="js/iscroll.js"></script>		
+		<script type="text/javascript" src="js/data.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>		
+
+		<script type="text/javascript">
+			ScrollSimple();
+ 			section.addClass(loadClass);
+
+			var current;
+
+			function reOrder()
+			{
+				byId('checkout').style.display = 'none';
+				for(var varname in _PRODUCT)
+				{
+					updateProduct(varname);
+				}
+			}
+
+			function insertElement(product_id, name, image, price, date_added, quantity)
+			{
+				id = parseInt(product_id);
+				price = parseFloat(price);
+				image = image ? image : 'img/thumb.jpg';
+
+				_PRODUCT[id] = [name, image, price];
+
+				var newdiv = document.createElement('div');
+				newdiv.innerHTML = '<div class="cartform">' +
+					'<input type="button" onclick="changeQuantity(' + id + ', -1);" value="-"><input type="text" name="quantity" id="quantity_' + id + '" value="' + quantity + '" readonly><input type="button" onclick="changeQuantity(' + id + ', 1);" value="+"></div>' +
+					'<img class="cover_p" src="' + image + '" />' +
+					'<div>' + name + '</div>' +
+					'<div>' + price + ' JD</div>';
+
+				list.insertBefore(newdiv, list.firstChild);
+			}
+
+			function fetch_data()
+			{
+				checkConnection(true);
+
+				var url = 'http://zait-zatar.com/mobile-ar/ajax.php?do=history&id=' + _GET['id'] + '&accountid=' + ACCOUNT.accountid + '&provider=' + ACCOUNT.provider + '&userid=' + ACCOUNT.userid + '&name=' + ACCOUNT.name + '&email=' + ACCOUNT.email + '&accesstoken=' + ACCOUNT.accesstoken + '&accesstokensecret=' + ACCOUNT.accesstokensecret;
+				if (queue.in_array(url) != false)
+				{
+					return;
+				}
+				var cur = length++;
+				queue[cur] = url;
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', url);
+				xhr.timeout = 14000;
+				xhr.ontimeout = function ()
+				{
+					toastMsg('Sorry, we are not able to process your request');
+					window.location.href = 'order.html';
+				}
+				xhr.onload = function(e)
+				{
+					var data = JSON.parse(this.responseText);
+
+					if (data.length)
+					{
+						totalprice = 0;
+						data.forEach(function(value) {
+							insertElement(value['product_id'], value['name'], value['image'], value['price'], value['date_added'], value['quantity']);
+							totalprice += value['price'] * value['quantity'];
+						})
+
+						byId('subtotal').innerHTML = parseFloat(totalprice).toFixed(2) + ' JD';
+						byId('checkout').style.display = '';
+					}
+					else
+					{
+						toastMsg('Sorry, we are not able to process your request');
+						window.location.href = 'order.html';
+					}
+
+					queue.splice(cur);
+					myScroll.refresh();
+					section.removeClass(loadClass);
+				}
+				xhr.send();
+			}
+
+			function onDeviceReady()
+			{
+				initialize();
+				
+				document.addEventListener("backbutton", goBack, false);
+
+				fetch_data();
+
+				window.addEventListener('orientationchange', function() {
+					myScroll.refresh();
+				}, false);
+			}
+		</script>
+    </body>
+</html>
